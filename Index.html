@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>용돈기입장</title>
+<meta charset="utf-8">
+<style>
+  :root { --main:#3b6ef5; --bg:#f4f6fb; --card:#fff; --text:#222; --sub:#777; --warn:#e5484d;
+          --soft:#eef3ff; --tabbg:#e3e8f2; --line:#d6dbe6; --chip:#eef1f7; --divider:#eee; --onmain:#fff; --plus:#2a9d5c; }
+  body[data-theme="coral"]    { --main:#f06a5a; --bg:#fff4ef; --card:#fff;    --text:#3a2622; --sub:#9a7b74;
+                                --soft:#ffe6df; --tabbg:#fbe1d8; --line:#f2d2c8; --chip:#fdece6; --divider:#f6e3dc; }
+  body[data-theme="mint"]     { --main:#16a38f; --bg:#eefaf6; --card:#fff;    --text:#1f3330; --sub:#6f8a85;
+                                --soft:#dcf5ee; --tabbg:#d7efe8; --line:#c8e6dd; --chip:#e4f5f0; --divider:#e0efea; }
+  body[data-theme="lavender"] { --main:#7c5ce6; --bg:#f5f2ff; --card:#fff;    --text:#2a2340; --sub:#7d7698;
+                                --soft:#ece6ff; --tabbg:#e6e0fa; --line:#dad2f2; --chip:#efebfc; --divider:#ebe6f7; }
+  body[data-theme="beige"]    { --main:#b9772a; --bg:#faf6ee; --card:#fffdf8; --text:#3a2f22; --sub:#8c7c66;
+                                --soft:#f6ead6; --tabbg:#efe5d3; --line:#e3d7c2; --chip:#f3ecdf; --divider:#efe7d9; }
+  body[data-theme="dark"]     { --main:#7aa7ff; --bg:#14171f; --card:#1f2430; --text:#e9ecf3; --sub:#8f97a8; --warn:#ff7b7f;
+                                --soft:#26324a; --tabbg:#252b38; --line:#343b4b; --chip:#2a3040; --divider:#2c3240; --onmain:#14171f; --plus:#5fd39a; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+         background:var(--bg); color:var(--text); transition:background .2s; }
+  .wrap { max-width:480px; margin:0 auto; padding:16px; }
+  h1 { font-size:20px; margin:4px 0 12px; display:flex; justify-content:space-between; align-items:center; }
+  .hdr-right { display:flex; align-items:center; gap:6px; }
+  .themebtn { font-size:20px; cursor:pointer; padding:0 4px; }
+  .themes { display:none; gap:10px; justify-content:center; background:var(--card); border-radius:14px;
+            padding:12px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .themes.on { display:flex; }
+  .dot { width:34px; height:34px; border-radius:50%; cursor:pointer; border:3px solid transparent; }
+  .dot.on { border-color:var(--text); }
+
+  select, input { width:100%; font-size:17px; padding:12px; border:1px solid var(--line);
+                  border-radius:10px; background:var(--card); color:var(--text); }
+  #sheet { width:auto; font-size:15px; padding:6px 10px; }
+
+  .summary { background:var(--main); color:var(--onmain); border-radius:16px; padding:18px; margin-bottom:14px; }
+  .summary .label { font-size:14px; opacity:.85; }
+  .summary .big { font-size:32px; font-weight:700; margin:4px 0 12px; }
+  .summary .row { display:flex; gap:10px; font-size:14px; }
+  .summary .row div { flex:1; background:rgba(255,255,255,.18); border-radius:10px; padding:8px 10px; }
+  .summary .row b { display:block; font-size:16px; margin-top:2px; }
+
+  .cats { display:none; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+  .cats.on { display:grid; }
+  .cat { background:var(--card); color:var(--text); border:2px solid transparent; border-radius:12px; padding:10px 6px;
+         text-align:center; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .cat.on { border-color:var(--main); background:var(--soft); }
+  .cat b { display:block; font-size:15px; }
+  .cat small { color:var(--sub); font-size:12px; }
+
+  .tabs { display:flex; background:var(--tabbg); border-radius:12px; padding:4px; margin-bottom:14px; }
+  .tab { flex:1; text-align:center; padding:10px; border-radius:9px; font-weight:600; color:var(--sub); cursor:pointer; }
+  .tab.on { background:var(--card); color:var(--main); box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  .page { display:none; } .page.on { display:block; }
+
+  .card { background:var(--card); border-radius:14px; padding:14px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  label { font-size:13px; color:var(--sub); display:block; margin:10px 0 4px; }
+  button { width:100%; font-size:18px; padding:14px; border:0; border-radius:12px;
+           background:var(--main); color:var(--onmain); margin-top:14px; font-weight:600; }
+  button:disabled { opacity:.5; }
+  .ghost { background:none; color:var(--sub); font-size:14px; margin-top:6px; padding:8px; font-weight:400; }
+  .msg { text-align:center; min-height:22px; margin-top:8px; font-size:14px; }
+  .list { margin-top:14px; font-size:14px; }
+  .list > div { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--divider); }
+  .list span:first-child { color:var(--sub); width:48px; }
+  .list span:nth-child(2) { flex:1; }
+  .plus { color:var(--plus); font-weight:600; }
+  .minus { color:var(--warn); font-weight:600; }
+
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .chip { padding:7px 12px; border-radius:20px; background:var(--chip); font-size:14px; cursor:pointer; border:1px solid transparent; }
+  .toggle { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--sub); margin-top:10px; }
+  .toggle input { width:auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🐷 용돈기입장
+    <span class="hdr-right"><span class="themebtn" id="themeBtn" title="색상 바꾸기">🎨</span><select id="sheet"></select></span>
+  </h1>
+  <div class="themes" id="themes"></div>
+
+  <div class="cats" id="cats"></div>
+
+  <div class="summary">
+    <div class="label" id="sumName">남은 용돈</div>
+    <div class="big" id="sumBalance">…</div>
+    <div class="row">
+      <div>받은 돈<b id="sumBudget">-</b></div>
+      <div>쓴 돈<b id="sumSpent">-</b></div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" data-page="spend">💸 썼어요</div>
+    <div class="tab" data-page="income">🎁 받았어요</div>
+  </div>
+
+  <!-- 썼어요 -->
+  <div class="page on" id="page-spend">
+    <div class="card">
+      <label>날짜</label>
+      <input type="date" id="date">
+      <label>어디에 썼나요?</label>
+      <input type="text" id="item" placeholder="예: 편의점" autocomplete="off">
+      <div class="chips" id="itemChips"></div>
+      <label>금액 (원)</label>
+      <input type="text" id="amount" class="money" inputmode="numeric" placeholder="0">
+      <button id="save">저장</button>
+      <button class="ghost" id="undo">↩ 마지막 입력 취소</button>
+      <div class="msg" id="msg"></div>
+      <div class="list" id="recent"></div>
+    </div>
+  </div>
+
+  <!-- 받았어요 -->
+  <div class="page" id="page-income">
+    <div class="card">
+      <label>받은 금액 (원)</label>
+      <input type="text" id="inAmount" class="money" inputmode="numeric" placeholder="0">
+      <div class="chips">
+        <span class="chip" onclick="quick(5000)">+5천</span>
+        <span class="chip" onclick="quick(10000)">+1만</span>
+        <span class="chip" onclick="quick(30000)">+3만</span>
+        <span class="chip" onclick="quick(50000)">+5만</span>
+      </div>
+      <label class="toggle"><input type="checkbox" id="inMinus"> 받은 돈에서 빼기 (돌려줬거나 잘못 넣었을 때)</label>
+      <button id="inSave">받은 돈에 더하기</button>
+      <button class="ghost" id="inUndo">↩ 마지막 기록 취소</button>
+      <div class="msg" id="inMsg"></div>
+      <div class="list" id="incomeList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ===== 여기에 Apps Script 웹 앱 URL을 붙여넣으세요 (…/exec 로 끝나는 주소) ===== */
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwD0z3I6utkXU8zLre1SYDqSwBnxyotxsNj1deO_AIr4-KYUgGw-j4IRugS1GGbMQFL/exec';
+
+  /* google.script.run 과 같은 방식으로 Apps Script를 부르는 연결 코드 */
+  function getPin(ask) {
+    let pin = '';
+    try { pin = localStorage.getItem('allowancePin') || ''; } catch (e) {}
+    if (!pin || ask) {
+      pin = prompt(ask ? 'PIN이 맞지 않아요. 다시 입력해 주세요.' : 'PIN 번호를 입력해 주세요.') || '';
+      try { localStorage.setItem('allowancePin', pin); } catch (e) {}
+    }
+    return pin;
+  }
+  async function callApi(fn, args, retry) {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ fn: fn, args: args, pin: getPin(retry) })
+    });
+    const data = await res.json();
+    if (!data.ok && data.error === 'PIN') {
+      if (retry) throw new Error('PIN이 맞지 않아요.');
+      return callApi(fn, args, true);
+    }
+    if (!data.ok) throw new Error(data.error);
+    return data.result;
+  }
+  function makeRunner(ok, fail) {
+    return new Proxy({}, { get(_, name) {
+      if (name === 'withSuccessHandler') return h => makeRunner(h, fail);
+      if (name === 'withFailureHandler') return h => makeRunner(ok, h);
+      return (...args) => callApi(name, args)
+        .then(r => ok && ok(r))
+        .catch(e => fail ? fail(e) : alert(e.message || '연결에 실패했어요.'));
+    }});
+  }
+  const google = { script: { get run() { return makeRunner(); } } };
+</script>
+<script>
+  const $ = id => document.getElementById(id);
+  let sheetName = '', cats = [], selected = null;
+
+  function today() {
+    const d = new Date(), z = n => String(n).padStart(2,'0');
+    return d.getFullYear() + '-' + z(d.getMonth()+1) + '-' + z(d.getDate());
+  }
+  function show(el, t, err) { $(el).textContent = t; $(el).style.color = err ? 'var(--warn)' : 'var(--plus)'; }
+  const won = n => Number(n).toLocaleString('ko-KR');
+
+  document.querySelectorAll('.money').forEach(inp => inp.addEventListener('input', e => {
+    const n = e.target.value.replace(/[^0-9]/g, '');
+    e.target.value = n ? won(n) : '';
+  }));
+
+  document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t));
+    document.querySelectorAll('.page').forEach(p => p.classList.toggle('on', p.id === 'page-' + t.dataset.page));
+  });
+
+  /* ---------- 화면 그리기 ---------- */
+  function render(data) {
+    cats = data;
+    if (selected == null || !cats.some(c => c.col === selected)) selected = cats.length ? cats[0].col : null;
+    const cur = cats.find(c => c.col === selected);
+
+    // 사람(칸)이 여러 명일 때만 선택 버튼 표시
+    $('cats').classList.toggle('on', cats.length > 1);
+    $('cats').innerHTML = cats.map(c =>
+      `<div class="cat ${c.col===selected?'on':''}" onclick="pick(${c.col})"><b>${c.name}</b><small>잔액 ${c.balance}</small></div>`).join('');
+
+    if (!cur) { $('sumBalance').textContent = '내역 칸을 못 찾았어요'; return; }
+    $('sumName').textContent = cur.name + ' 남은 용돈';
+    $('sumBalance').textContent = (cur.balance || '0') + '원';
+    $('sumBudget').textContent = cur.budget || '-';
+    $('sumSpent').textContent = cur.spent || '-';
+
+    $('recent').innerHTML = cur.recent.length
+      ? '<label>최근 쓴 내역</label>' +
+        cur.recent.map(r => `<div><span>${r[0]}</span><span>${r[1]}</span><span>${r[2]}</span></div>`).join('')
+      : '';
+
+    // 자주 쓰는 내역 버튼 (최근 내역에서)
+    const items = [...new Set(cur.recent.map(r => r[1]).filter(Boolean))].slice(0, 5);
+    $('itemChips').innerHTML = items.map(i =>
+      `<span class="chip" onclick="setItem('${i.replace(/'/g,"\\'")}')">${i}</span>`).join('');
+
+    $('incomeList').innerHTML = cur.income.length
+      ? '<label>최근 받은 돈 기록 (예산 칸 수식)</label>' +
+        cur.income.map(n => `<div><span></span><span>${n >= 0 ? '받음' : '뺌'}</span>
+          <span class="${n >= 0 ? 'plus' : 'minus'}">${n >= 0 ? '+' : '−'}${won(Math.abs(n))}</span></div>`).join('')
+      : '';
+  }
+  function pick(col) { selected = col; render(cats); }
+  function setItem(t) { $('item').value = t; $('amount').focus(); }
+  function quick(n) { $('inAmount').value = won(Number($('inAmount').value.replace(/[^0-9]/g,'')) + n); }
+
+  function load() {
+    google.script.run.withSuccessHandler(render)
+      .withFailureHandler(e => show('msg', e.message, true)).getSheetInfo(sheetName);
+  }
+
+  /* ---------- 썼어요 ---------- */
+  $('amount').addEventListener('keydown', e => { if (e.key === 'Enter') $('save').click(); });
+  $('save').onclick = () => {
+    if (!$('item').value.trim() || !$('amount').value) return show('msg', '내역과 금액을 입력해 주세요', true);
+    $('save').disabled = true; show('msg', '저장 중…');
+    google.script.run.withSuccessHandler(data => {
+      render(data); show('msg', '✓ 저장했어요');
+      $('item').value = ''; $('amount').value = ''; $('save').disabled = false;
+    }).withFailureHandler(e => { show('msg', e.message, true); $('save').disabled = false; })
+      .addExpense({ sheetName, col: selected, date: $('date').value,
+                    item: $('item').value.trim(), amount: $('amount').value });
+  };
+  $('undo').onclick = () => {
+    if (!confirm('마지막으로 쓴 내역을 지울까요?')) return;
+    google.script.run.withSuccessHandler(d => { render(d); show('msg', '마지막 입력을 지웠어요'); })
+      .withFailureHandler(e => show('msg', e.message, true)).undoLast(sheetName, selected);
+  };
+
+  /* ---------- 받았어요 ---------- */
+  $('inSave').onclick = () => {
+    if (!$('inAmount').value) return show('inMsg', '금액을 입력해 주세요', true);
+    const minus = $('inMinus').checked;
+    $('inSave').disabled = true; show('inMsg', '저장 중…');
+    google.script.run.withSuccessHandler(data => {
+      render(data); show('inMsg', minus ? '✓ 받은 돈에서 뺐어요' : '✓ 받은 돈에 더했어요 🎉');
+      $('inAmount').value = ''; $('inMinus').checked = false; $('inSave').disabled = false;
+    }).withFailureHandler(e => { show('inMsg', e.message, true); $('inSave').disabled = false; })
+      .addIncome(sheetName, selected, $('inAmount').value, minus);
+  };
+  $('inUndo').onclick = () => {
+    if (!confirm('받은 돈 마지막 기록을 지울까요?')) return;
+    google.script.run.withSuccessHandler(d => { render(d); show('inMsg', '마지막 기록을 지웠어요'); })
+      .withFailureHandler(e => show('inMsg', e.message, true)).undoIncome(sheetName, selected);
+  };
+
+  /* ---------- 색상 테마 ---------- */
+  const THEMES = [
+    ['blue','#3b6ef5','스카이 블루'], ['coral','#f06a5a','코랄 피치'], ['mint','#16a38f','민트 그린'],
+    ['lavender','#7c5ce6','라벤더'], ['beige','#b9772a','웜 베이지'], ['dark','#1f2430','다크 나이트']
+  ];
+  function applyTheme(t) {
+    document.body.dataset.theme = t;
+    try { localStorage.setItem('allowanceTheme', t); } catch (e) {}
+    $('themes').innerHTML = THEMES.map(([id, c, name]) =>
+      `<div class="dot ${id===t?'on':''}" style="background:${c}" title="${name}" onclick="applyTheme('${id}')"></div>`).join('');
+  }
+  $('themeBtn').onclick = () => $('themes').classList.toggle('on');
+  let savedTheme = 'coral';
+  try { savedTheme = localStorage.getItem('allowanceTheme') || 'coral'; } catch (e) {}
+  applyTheme(savedTheme);
+
+  /* ---------- 시작 ---------- */
+  $('sheet').onchange = e => { sheetName = e.target.value; load(); };
+  $('date').value = today();
+  google.script.run.withSuccessHandler(r => {
+    $('sheet').innerHTML = r.names.map(n => `<option ${n===r.current?'selected':''}>${n}</option>`).join('');
+    $('sheet').style.display = r.names.length > 1 ? '' : 'none';   // 탭이 하나면 숨김
+    sheetName = r.current; load();
+  }).withFailureHandler(e => show('msg', e.message, true)).getSheetList();
+</script>
+</body>
+</html>
